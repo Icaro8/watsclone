@@ -1,11 +1,20 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import faunadb from "faunadb";
-import "dotenv/config";
+import { CLientFauna } from "../../services/fauna";
+import { query as q } from "faunadb";
 
-export function Register(request: VercelRequest, response: VercelResponse) {
-  const query = faunadb.query;
-  const adminClient = new faunadb.Client({
-    secret: process.env.DATABASEFAUNADB!,
-  });
-  adminClient.query(query.CreateCollection({ name: "users" }));
+interface User {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export async function Register(
+  request: VercelRequest,
+  response: VercelResponse
+) {
+  const user: User = await request.body;
+  const returndata = await CLientFauna.query(
+    q.Create(q.Collection("user"), { data: user })
+  );
+  console.log(returndata);
 }
